@@ -1,12 +1,26 @@
 document.addEventListener("DOMContentLoaded", function() {
+    // Registro del Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then(function(registration) {
+                console.log('Service Worker registrado con éxito:', registration);
+            })
+            .catch(function(error) {
+                console.log('Error al registrar el Service Worker:', error);
+            });
+    }
+
+    // Configuración del mapa
     const map = L.map('map').setView([51.505, -0.09], 13);
     let userMarker; // Variable para almacenar el marcador del usuario
     let routingControl; // Variable para almacenar el control de ruta
 
+    // Capa de mapa
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
+    // Obtener datos de Google Apps Script
     fetch('https://script.google.com/macros/s/AKfycbymMF4vqqu4guAWar_p14mYk1c-rq-FSN_ZWZJuHL-RZohDhvm3A4dB3WfTzwmPe74/exec')
         .then(response => response.json())
         .then(data => {
@@ -62,41 +76,19 @@ document.addEventListener("DOMContentLoaded", function() {
                 userMarker = L.marker([userLat, userLon]).addTo(map)
                     .bindPopup('Tu ubicación')
                     .openPopup();
+
+                // Centrar el mapa en la ubicación del usuario solo una vez
+                map.setView([userLat, userLon], 13);
             } else {
-                // Actualizar la posición del marcador
+                // Actualizar la posición del marcador sin centrar el mapa
                 userMarker.setLatLng([userLat, userLon]);
             }
-
-            // Centrar el mapa en la ubicación del usuario
-            map.setView([userLat, userLon], 13);
         }, () => {
             console.error("Error al obtener la ubicación.");
         });
     } else {
         console.error("Geolocalización no es soportada por este navegador.");
     }
-});
-
-
-
-document.addEventListener("DOMContentLoaded", function() {
-    // Registro del Service Worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js')
-            .then(function(registration) {
-                console.log('Service Worker registrado con éxito:', registration);
-            })
-            .catch(function(error) {
-                console.log('Error al registrar el Service Worker:', error);
-            });
-    }
-
-    // Resto de tu código...
-    const map = L.map('map').setView([51.505, -0.09], 13);
-    let userMarker; // Variable para almacenar el marcador del usuario
-    let routingControl; // Variable para almacenar el control de ruta
-
-    // ... (continuar con el resto de tu código)
 });
 
 
