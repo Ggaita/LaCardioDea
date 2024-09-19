@@ -11,7 +11,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Configuración del mapa
-    const map = L.map('map').setView([51.505, -0.09], 13);
+    const initialZoom = window.innerWidth < 768 ? 15 : 13; // Zoom inicial
+    const map = L.map('map').setView([51.505, -0.09], initialZoom);
     let userMarker; // Variable para almacenar el marcador del usuario
     let routingControl; // Variable para almacenar el control de ruta
 
@@ -58,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             if (data.length > 0) {
-                map.setView([data[0].latitud / 1000000, data[0].longitud / 1000000], 13);
+                map.setView([data[0].latitud / 1000000, data[0].longitud / 1000000], initialZoom);
             }
         })
         .catch(error => {
@@ -78,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     .openPopup();
 
                 // Centrar el mapa en la ubicación del usuario solo una vez
-                map.setView([userLat, userLon], 13);
+                map.setView([userLat, userLon], map.getZoom());
             } else {
                 // Actualizar la posición del marcador sin centrar el mapa
                 userMarker.setLatLng([userLat, userLon]);
@@ -89,7 +90,13 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
         console.error("Geolocalización no es soportada por este navegador.");
     }
+
+    // Ajustar el tamaño del mapa al redimensionar la ventana
+    window.addEventListener('resize', () => {
+        map.invalidateSize();
+    });
 });
+
 
 
 
