@@ -4,14 +4,11 @@ document.addEventListener("DOMContentLoaded", function() {
         navigator.serviceWorker.register('/service-worker.js')
             .then(function(registration) {
                 console.log('Service Worker registrado con éxito:', registration);
-
-                // Escuchar actualizaciones
                 registration.onupdatefound = () => {
                     const newWorker = registration.installing;
                     newWorker.onstatechange = () => {
                         if (newWorker.state === 'installed') {
                             if (navigator.serviceWorker.controller) {
-                                // Nueva versión disponible
                                 if (confirm('Hay una nueva versión disponible. ¿Quieres actualizar?')) {
                                     newWorker.postMessage({ action: 'skipWaiting' });
                                 }
@@ -73,10 +70,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     });
                 }
             });
-
-            if (data.length > 0) {
-                map.setView([data[0].latitud / 1000000, data[0].longitud / 1000000], initialZoom);
-            }
         })
         .catch(error => {
             console.error('Error fetching data:', error);
@@ -93,17 +86,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 userMarker = L.marker([userLat, userLon]).addTo(map)
                     .bindPopup('Tu ubicación')
                     .openPopup();
-
+                
                 // Centrar el mapa en la ubicación del usuario
                 map.setView([userLat, userLon], map.getZoom());
             } else {
-                // Solo actualizar la posición del marcador si se mueve
-                if (!userHasMovedMap) {
-                    userMarker.setLatLng([userLat, userLon]);
-                }
+                // Solo actualizar la posición del marcador
+                userMarker.setLatLng([userLat, userLon]);
             }
         }, () => {
             console.error("Error al obtener la ubicación.");
+        }, {
+            enableHighAccuracy: true // Opción para mayor precisión
         });
     } else {
         console.error("Geolocalización no es soportada por este navegador.");
@@ -119,6 +112,3 @@ document.addEventListener("DOMContentLoaded", function() {
         map.invalidateSize();
     });
 });
-
-
-
