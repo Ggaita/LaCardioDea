@@ -1,10 +1,24 @@
 document.addEventListener("DOMContentLoaded", function() {
     // Registro del Service Worker
-
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/service-worker.js')
             .then(function(registration) {
                 console.log('Service Worker registrado con éxito:', registration);
+
+                // Escuchar actualizaciones
+                registration.onupdatefound = () => {
+                    const newWorker = registration.installing;
+                    newWorker.onstatechange = () => {
+                        if (newWorker.state === 'installed') {
+                            if (navigator.serviceWorker.controller) {
+                                // Nueva versión disponible
+                                if (confirm('Hay una nueva versión disponible. ¿Quieres actualizar?')) {
+                                    newWorker.postMessage({ action: 'skipWaiting' });
+                                }
+                            }
+                        }
+                    };
+                };
             })
             .catch(function(error) {
                 console.log('Error al registrar el Service Worker:', error);
@@ -12,7 +26,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Configuración del mapa
-
     const initialZoom = window.innerWidth < 768 ? 15 : 13; 
     const map = L.map('map').setView([51.505, -0.09], initialZoom);
     let userMarker; // Usuario
@@ -20,13 +33,11 @@ document.addEventListener("DOMContentLoaded", function() {
     let userHasMovedMap = false; // Verificar si el usuario movió el mapa
 
     // Layer de mapa
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Trae datos de GAS
-
+    // Traer datos de Google Apps Script
     fetch('https://script.google.com/macros/s/AKfycbymMF4vqqu4guAWar_p14mYk1c-rq-FSN_ZWZJuHL-RZohDhvm3A4dB3WfTzwmPe74/exec')
         .then(response => response.json())
         .then(data => {
@@ -47,7 +58,6 @@ document.addEventListener("DOMContentLoaded", function() {
                         .bindPopup(point.nombre);
 
                     // Evento de clic al marcador
-
                     marker.on('click', () => {
                         if (routingControl) {
                             map.removeControl(routingControl);  // Elimina la ruta anterior
@@ -55,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
                         routingControl = L.Routing.control({
                             waypoints: [
-                                L.latLng(userMarker.getLatLng().lat, userMarker.getLatLng().lng), // Ubicación  usuario
+                                L.latLng(userMarker.getLatLng().lat, userMarker.getLatLng().lng), // Ubicación usuario
                                 L.latLng(latitud, longitud) // Ubicación punto seleccionado
                             ],
                             routeWhileDragging: true
@@ -73,21 +83,18 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
     // Ubicación actual del dispositivo
-
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(position => {
             const userLat = position.coords.latitude;
             const userLon = position.coords.longitude;
 
-            // Si el marcador del usuario no existe, créalo Pibe
-
+            // Si el marcador del usuario no existe, créalo
             if (!userMarker) {
                 userMarker = L.marker([userLat, userLon]).addTo(map)
                     .bindPopup('Tu ubicación')
                     .openPopup();
 
-                // Centrar el mapa en la ubicación del mobil
-
+                // Centrar el mapa en la ubicación del usuario
                 map.setView([userLat, userLon], map.getZoom());
             } else {
                 // Solo actualizar la posición del marcador si se mueve
@@ -104,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Usuario mueve mapa
     map.on('moveend', () => {
-        userHasMovedMap = true; //  Usuario movió el mapa
+        userHasMovedMap = true; // El usuario movió el mapa
     });
 
     // Ajustar el tamaño del mapa
@@ -112,7 +119,6 @@ document.addEventListener("DOMContentLoaded", function() {
         map.invalidateSize();
     });
 });
-
 
 
 

@@ -1,4 +1,3 @@
-// service-worker.js
 const CACHE_NAME = 'buscadea-cache-v1';
 const urlsToCache = [
   '/',
@@ -44,3 +43,11 @@ self.addEventListener('activate', event => {
     })
   );
 });
+
+// Nueva lógica para manejar actualizaciones
+self.addEventListener('message', event => {
+  if (event.data.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
+});
+
