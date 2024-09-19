@@ -79,7 +79,25 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
+document.addEventListener("DOMContentLoaded", function() {
+    // Registro del Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then(function(registration) {
+                console.log('Service Worker registrado con éxito:', registration);
+            })
+            .catch(function(error) {
+                console.log('Error al registrar el Service Worker:', error);
+            });
+    }
 
+    // Resto de tu código...
+    const map = L.map('map').setView([51.505, -0.09], 13);
+    let userMarker; // Variable para almacenar el marcador del usuario
+    let routingControl; // Variable para almacenar el control de ruta
+
+    // ... (continuar con el resto de tu código)
+});
 
 
 
