@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const map = L.map('map').setView([51.505, -0.09], initialZoom);
     let userMarker; // Variable para almacenar el marcador del usuario
     let routingControl; // Variable para almacenar el control de ruta
+    let userHasMovedMap = false; // Variable para verificar si el usuario movió el mapa
 
     // Capa de mapa
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -81,8 +82,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 // Centrar el mapa en la ubicación del usuario solo una vez
                 map.setView([userLat, userLon], map.getZoom());
             } else {
-                // Actualizar la posición del marcador sin centrar el mapa
-                userMarker.setLatLng([userLat, userLon]);
+                // Solo actualizar la posición del marcador si el usuario no ha movido el mapa
+                if (!userHasMovedMap) {
+                    userMarker.setLatLng([userLat, userLon]);
+                }
             }
         }, () => {
             console.error("Error al obtener la ubicación.");
@@ -91,13 +94,16 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error("Geolocalización no es soportada por este navegador.");
     }
 
+    // Detectar cuando el usuario mueve el mapa
+    map.on('moveend', () => {
+        userHasMovedMap = true; // El usuario ha movido el mapa
+    });
+
     // Ajustar el tamaño del mapa al redimensionar la ventana
     window.addEventListener('resize', () => {
         map.invalidateSize();
     });
 });
-
-
 
 
 
