@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     // Registro del Service Worker
+
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/service-worker.js')
             .then(function(registration) {
@@ -11,18 +12,21 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Configuración del mapa
-    const initialZoom = window.innerWidth < 768 ? 15 : 13; // Zoom inicial
-    const map = L.map('map').setView([51.505, -0.09], initialZoom);
-    let userMarker; // Variable para almacenar el marcador del usuario
-    let routingControl; // Variable para almacenar el control de ruta
-    let userHasMovedMap = false; // Variable para verificar si el usuario movió el mapa
 
-    // Capa de mapa
+    const initialZoom = window.innerWidth < 768 ? 15 : 13; 
+    const map = L.map('map').setView([51.505, -0.09], initialZoom);
+    let userMarker; // Usuario
+    let routingControl; // Control de ruta
+    let userHasMovedMap = false; // Verificar si el usuario movió el mapa
+
+    // Layer de mapa
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Obtener datos de Google Apps Script
+    // Trae datos de GAS
+
     fetch('https://script.google.com/macros/s/AKfycbymMF4vqqu4guAWar_p14mYk1c-rq-FSN_ZWZJuHL-RZohDhvm3A4dB3WfTzwmPe74/exec')
         .then(response => response.json())
         .then(data => {
@@ -34,24 +38,25 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             data.forEach(point => {
-                const latitud = parseFloat(point.latitud) / 1000000; // Conversión
-                const longitud = parseFloat(point.longitud) / 1000000; // Conversión
+                const latitud = parseFloat(point.latitud) / 1000000; 
+                const longitud = parseFloat(point.longitud) / 1000000; 
 
                 if (!isNaN(latitud) && !isNaN(longitud)) {
                     const marker = L.marker([latitud, longitud], { icon: customIcon })
                         .addTo(map)
                         .bindPopup(point.nombre);
 
-                    // Agregar evento de clic en el marcador
+                    // Evento de clic al marcador
+
                     marker.on('click', () => {
                         if (routingControl) {
-                            map.removeControl(routingControl); // Eliminar la ruta anterior
+                            map.removeControl(routingControl);  // Elimina la ruta anterior
                         }
 
                         routingControl = L.Routing.control({
                             waypoints: [
-                                L.latLng(userMarker.getLatLng().lat, userMarker.getLatLng().lng), // Ubicación del usuario
-                                L.latLng(latitud, longitud) // Ubicación del punto seleccionado
+                                L.latLng(userMarker.getLatLng().lat, userMarker.getLatLng().lng), // Ubicación  usuario
+                                L.latLng(latitud, longitud) // Ubicación punto seleccionado
                             ],
                             routeWhileDragging: true
                         }).addTo(map);
@@ -67,22 +72,25 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error('Error fetching data:', error);
         });
 
-    // Mostrar la ubicación actual del dispositivo
+    // Ubicación actual del dispositivo
+
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(position => {
             const userLat = position.coords.latitude;
             const userLon = position.coords.longitude;
 
-            // Si el marcador del usuario no existe, créalo
+            // Si el marcador del usuario no existe, créalo Pibe
+
             if (!userMarker) {
                 userMarker = L.marker([userLat, userLon]).addTo(map)
                     .bindPopup('Tu ubicación')
                     .openPopup();
 
-                // Centrar el mapa en la ubicación del usuario solo una vez
+                // Centrar el mapa en la ubicación del mobil
+
                 map.setView([userLat, userLon], map.getZoom());
             } else {
-                // Solo actualizar la posición del marcador si el usuario no ha movido el mapa
+                // Solo actualizar la posición del marcador si se mueve
                 if (!userHasMovedMap) {
                     userMarker.setLatLng([userLat, userLon]);
                 }
@@ -94,12 +102,12 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error("Geolocalización no es soportada por este navegador.");
     }
 
-    // Detectar cuando el usuario mueve el mapa
+    // Usuario mueve mapa
     map.on('moveend', () => {
-        userHasMovedMap = true; // El usuario ha movido el mapa
+        userHasMovedMap = true; //  Usuario movió el mapa
     });
 
-    // Ajustar el tamaño del mapa al redimensionar la ventana
+    // Ajustar el tamaño del mapa
     window.addEventListener('resize', () => {
         map.invalidateSize();
     });
