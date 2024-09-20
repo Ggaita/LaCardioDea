@@ -1,3 +1,13 @@
+/* Gracias leaflet - JS y lo que ande, .......
+un par de padre nuestros y ahí te voy San Pedro */
+
+/*APP creada por Gonzalo Gaspar Gaita, full Stack RE-JUNIOR, gratuita, open source 
+para ayudar a localizar los DEAs en La Pampa, sientase libre de investigar y mejorarla tambien, 
+esta App es de todos ....
+                                                                         Gonzalo Gaspar Gaita  */
+
+
+
 document.addEventListener("DOMContentLoaded", function() {
     // Registro del Service Worker
     if ('serviceWorker' in navigator) {
@@ -31,6 +41,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let userMarker; // Usuario
     let routingControl; // Control de ruta
     let userHasMovedMap = false; // Verificar si el usuario movió el mapa
+    let userLocationSet = false; // Bandera para saber si ya se estableció la ubicación del usuario
 
     // Layer de mapa
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -74,7 +85,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
 
-            if (data.length > 0) {
+            // Vista del mapa si la ubicación del usuario aún no se ha establecido
+            if (!userLocationSet && data.length > 0) {
                 map.setView([data[0].latitud / 1000000, data[0].longitud / 1000000], initialZoom);
             }
         })
@@ -82,32 +94,41 @@ document.addEventListener("DOMContentLoaded", function() {
             console.error('Error fetching data:', error);
         });
 
-    // Ubicación actual del dispositivo
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(position => {
-            const userLat = position.coords.latitude;
-            const userLon = position.coords.longitude;
-
-            // Si el marcador del usuario no existe, créalo
-            if (!userMarker) {
-                userMarker = L.marker([userLat, userLon]).addTo(map)
-                    .bindPopup('Tu ubicación')
-                    .openPopup();
-
-                // Centrar el mapa en la ubicación del usuario
-                map.setView([userLat, userLon], map.getZoom());
-            } else {
-                // Solo actualizar la posición del marcador si se mueve
-                if (!userHasMovedMap) {
-                    userMarker.setLatLng([userLat, userLon]);
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition(position => {
+                const userLat = position.coords.latitude;
+                const userLon = position.coords.longitude;
+        
+                // Si el marcador del usuario no existe, créalo
+                if (!userMarker) {
+                    userMarker = L.marker([userLat, userLon]).addTo(map)
+                        .bindPopup('Tu ubicación')
+                        .openPopup();
+        
+                    // Centrar el mapa en la ubicación del usuario
+                    map.setView([userLat, userLon], map.getZoom());
+        
+                    // Ubicación del usuario ha sido establecida
+                    userLocationSet = true;
+                } else {
+                    // Actualizar la posición del marcador si se mueve
+                    if (!userHasMovedMap) {
+                        userMarker.setLatLng([userLat, userLon]);
+                        map.setView([userLat, userLon], map.getZoom());
+                    }
                 }
-            }
-        }, () => {
-            console.error("Error al obtener la ubicación.");
-        });
-    } else {
-        console.error("Geolocalización no es soportada por este navegador.");
-    }
+            }, 
+            (error) => {
+                console.error("Error al obtener la ubicación: ", error);
+            }, 
+            {
+                enableHighAccuracy: true,  // Mayor precisión de ubicación
+                timeout: 5000,  // (5 segundos)
+                maximumAge: 0  // No usar ubicaciones en caché
+            });
+        } else {
+            console.error("Geolocalización no es soportada por este navegador.");
+        }
 
     // Usuario mueve mapa
     map.on('moveend', () => {
@@ -119,6 +140,3 @@ document.addEventListener("DOMContentLoaded", function() {
         map.invalidateSize();
     });
 });
-
-
-
