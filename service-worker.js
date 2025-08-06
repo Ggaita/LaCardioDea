@@ -1,4 +1,4 @@
-const CACHE_NAME = 'buscadea-cache-v1';
+const CACHE_NAME = 'GeoDeas';
 const urlsToCache = [
   '/',
   '/styles.css',
