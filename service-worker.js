@@ -1,10 +1,14 @@
 const CACHE_NAME = 'GeoDeas';
 const urlsToCache = [
   '/',
-  '/styles.css',
-  '/app.js',
-  '/icon.png',
-  '/manifest.json',
+  './styles.css',
+  './app.js',
+  './geo.js',
+  './map.js',
+  './points.js',
+  './routing.js',
+  './icon.png',
+  './manifest.json',
   'https://unpkg.com/leaflet/dist/leaflet.js',
   'https://unpkg.com/leaflet/dist/leaflet.css',
   'https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js',
