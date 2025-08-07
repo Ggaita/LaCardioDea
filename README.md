@@ -21,6 +21,13 @@ Este proyecto muestra un mapa interactivo de La Pampa con puntos de desfibrilado
 - Service Workers
 - Fetch API
 - GeoServer WFS
+- Nada más por ahora
+
 
 ---
 
+## Creditos
+
+No voy a decir mucho, esto es para ser abierto y libre, federando el conocimiento al alcanze de todos. GLP v3 seguramente implemente... 
+Nada más por ahora.
+Gracias por leer. 
